@@ -1,6 +1,7 @@
 # [Reading the Chinese License Plate](https://xuanx1.github.io/chinaPlates/Reading%20the%20Chinese%20License%20Plate.html)
 
 A long-form [explainer](https://xuanx1.github.io/chinaPlates/Reading%20the%20Chinese%20License%20Plate.html) that breaks down how to read a Chinese license plate — the province character, the city letter, the colour codes, and the patterns hidden in those seven (or eight) slots.
+<img width="1255" height="737" alt="Screenshot 2026-05-07 215440" src="https://github.com/user-attachments/assets/00e86246-2f0c-4a1c-a4c7-2c2f88a98ffd" />
 
 ## Sections
 
