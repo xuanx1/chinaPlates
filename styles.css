@@ -1,0 +1,642 @@
+/* China License Plates — NYT Pudding–style visualization */
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --ink: #1a1a1a;
+  --ink-soft: #444;
+  --ink-mute: #888;
+  --rule: #e5e5e5;
+  --rule-strong: #cfcfcf;
+  --paper: #fbfaf7;
+  --paper-warm: #f4f1ea;
+  --accent: #c8102e;        /* red */
+  --plate-blue: #1e4fa3;
+  --serif: 'Tiempos Headline', 'Source Serif 4', 'Source Serif Pro', 'Times New Roman', Georgia, serif;
+  --sans: 'Söhne', 'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --mono: 'JetBrains Mono', 'IBM Plex Mono', ui-monospace, monospace;
+  --hanzi: 'Noto Serif SC', 'Source Han Serif SC', serif;
+  --plate-hanzi: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  --plate-font: 'Saira Condensed', 'Inter', sans-serif;}
+
+html, body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--serif);
+  font-size: 18px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+a { color: inherit; }
+
+/* ---------- Layout ---------- */
+.page {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 0 32px 120px;
+}
+
+.kicker {
+  font-family: var(--sans);
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+  font-weight: 600;
+}
+
+.byline {
+  font-family: var(--sans);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  color: var(--ink-mute);
+  margin-top: 14px;
+}
+.byline strong { color: var(--ink); font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; font-size: 11px; }
+
+/* ---------- Masthead ---------- */
+.masthead {
+  padding: 88px 0 56px;
+  border-bottom: 1px solid var(--rule);
+  text-align: left;
+  max-width: 880px;
+}
+.masthead .kicker { margin-bottom: 28px; }
+.masthead h1 {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: clamp(44px, 6.5vw, 88px);
+  line-height: 1.02;
+  letter-spacing: -0.025em;
+}
+.masthead h1 .accent { color: var(--accent); font-style: italic; font-weight: 600; }
+.masthead .standfirst {
+  margin-top: 28px;
+  font-family: var(--serif);
+  font-size: clamp(18px, 1.4vw, 22px);
+  line-height: 1.5;
+  color: var(--ink-soft);
+  max-width: 640px;
+  font-weight: 400;
+}
+
+/* ---------- Sections ---------- */
+section {
+  padding: 96px 0 32px;
+  border-bottom: 1px solid var(--rule);
+}
+section:last-of-type { border-bottom: none; }
+
+.sec-num {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--ink-mute);
+  letter-spacing: 0.1em;
+  margin-bottom: 12px;
+}
+.sec-head {
+  font-family: var(--serif);
+  font-size: clamp(32px, 4vw, 48px);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  font-weight: 700;
+  max-width: 720px;
+  margin-bottom: 18px;
+}
+.sec-dek {
+  font-family: var(--serif);
+  font-size: 19px;
+  line-height: 1.55;
+  color: var(--ink-soft);
+  max-width: 640px;
+  margin-bottom: 56px;
+}
+
+/* ---------- Hero plate ---------- */
+.hero-stage {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px 0 24px;
+}
+
+.plate {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px;
+  border: 3px solid rgba(255,255,255,0.92);
+  box-shadow:
+    inset 0 0 0 4px rgba(0,0,0,0.08),
+    0 30px 60px -20px rgba(0,0,0,0.35),
+    0 8px 16px -8px rgba(0,0,0,0.2);
+  font-family: var(--plate-font);
+  font-weight: 500;
+  user-select: none;
+  transition: background 600ms ease, color 600ms ease;
+  overflow: hidden;
+}
+
+.plate.size-hero {
+  width: min(880px, 92vw);
+  height: min(280px, calc(92vw * 0.318));
+  font-size: clamp(70px, 14vw, 142px);
+  --slot-w: clamp(72px, 10vw, 100px);
+  gap: clamp(2px, 0.4vw, 6px);
+  padding: 0 clamp(18px, 3vw, 36px);
+  letter-spacing: -0.02em;
+  border-radius: 17px;
+}
+
+.plate.size-md {
+  width: 460px;
+  height: 122px;
+  font-size: 58px;
+  --slot-w: 50px;
+  gap: 6px;
+  padding: 0 16px;
+  letter-spacing: 0.01em;
+}
+.plate.size-md.has-8 {
+  font-size: 50px;
+  --slot-w: 42px;
+  gap: 5px;
+  padding: 0 12px;
+  letter-spacing: 0.02em;
+}
+
+.plate-char {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  line-height: 1;
+  width: var(--slot-w);
+  flex: 0 0 var(--slot-w);
+  text-align: center;
+  font-weight: 500;
+}
+.plate-char.hanzi {
+  font-family: var(--plate-hanzi);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  font-size: 0.82em;
+  transform: translateY(-0.04em);
+}
+.plate-char.dot {
+  font-size: 0.55em;
+  width: calc(var(--slot-w) * 0.4);
+  flex-basis: calc(var(--slot-w) * 0.4);
+  transform: translateY(-0.1em);
+  opacity: 0.95;
+}
+
+/* Bolts on the plate */
+.plate::before, .plate::after {
+  content: '';
+  position: absolute;
+  width: 10px; height: 10px; border-radius: 50%;
+  background: rgba(0,0,0,0.18);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.25);
+  top: 14px;
+}
+.plate.size-hero::before, .plate.size-hero::after {
+  width: 20px; height: 20px;
+  top: 22px;
+}
+.plate.bolts-light::before, .plate.bolts-light::after {
+  background: rgba(255,255,255,0.35);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.5);
+}
+.plate::before { left: 50%; transform: translateX(-220%); }
+.plate::after  { left: 50%; transform: translateX(220%); }
+
+/* ---------- Scientific diagram annotations (straight lines, no boxes) ---------- */
+.diagram {
+  position: relative;
+  width: min(880px, 92vw);
+  margin: 0 auto;
+  padding: 60px 0 120px;
+}
+.diagram .plate {
+  position: relative;
+  z-index: 2;
+}
+.diagram-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 3;
+  overflow: visible;
+}
+.annot-line {
+  stroke: #9a9a9a;
+  stroke-width: 1.4;
+  fill: none;
+  stroke-dasharray: 800;
+  stroke-dashoffset: 800;
+  transition: stroke-dashoffset 1100ms cubic-bezier(.4,.0,.2,1);
+}
+.annot-dot {
+  fill: #9a9a9a;
+  opacity: 0;
+  transform: scale(0);
+  transform-origin: center;
+  transform-box: fill-box;
+  transition: opacity 400ms ease, transform 500ms cubic-bezier(.34,1.56,.64,1);
+}
+.diagram.in-view .annot-line { stroke-dashoffset: 0; }
+.diagram.in-view .annot-dot { opacity: 1; transform: scale(1); }
+
+.annot-label {
+  position: absolute;
+  font-family: var(--sans);
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--ink-soft);
+  width: 160px;
+  z-index: 4;
+  opacity: 0;
+  transform: translateX(-50%) translateY(6px);
+  transition: opacity 600ms ease, transform 600ms ease;
+}
+.diagram.in-view .annot-label { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+.annot-label .lbl {
+  display: block;
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--ink);
+  letter-spacing: -0.005em;
+  margin-bottom: 2px;
+}
+.annot-label .cn {
+  font-family: var(--hanzi);
+  font-size: 12px;
+  color: var(--ink-mute);
+}
+
+/* ---------- Scroll reveal ---------- */
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 700ms ease, transform 700ms ease;
+}
+.reveal.in-view { opacity: 1; transform: translateY(0); }
+.reveal.delay-1 { transition-delay: 100ms; }
+.reveal.delay-2 { transition-delay: 200ms; }
+.reveal.delay-3 { transition-delay: 300ms; }
+
+/* ---------- Province ticker ---------- */
+.ticker {
+  margin: 56px auto 0;
+  width: min(1040px, 96vw);
+  text-align: center;
+}
+.ticker-label {
+  font-family: var(--sans);
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+  margin-bottom: 18px;
+}
+.ticker-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  max-width: 1016px;
+  margin: 0 auto;
+}
+.ticker-cell {
+  flex: 0 0 56px;
+  width: 56px;
+  aspect-ratio: 1 / 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  font-family: var(--hanzi);
+  font-size: 22px;
+  font-weight: 600;
+  background: #fff;
+  border: 1px solid var(--rule);
+  cursor: pointer;
+  transition: all 200ms ease;
+  color: var(--ink);
+}
+.ticker-cell .tc-char {
+  font-family: var(--hanzi);
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1;
+}
+.ticker-cell .tc-pinyin {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--ink-mute);
+  line-height: 1;
+}
+.ticker-cell.active .tc-pinyin,
+.ticker-cell:hover .tc-pinyin {
+  color: rgba(255,255,255,0.85);
+}
+.ticker-cell {
+  aspect-ratio: 1 / 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--hanzi);
+  font-size: 22px;
+  font-weight: 600;
+  background: #fff;
+  border: 1px solid var(--rule);
+  cursor: pointer;
+  transition: all 200ms ease;
+  color: var(--ink);
+}
+.ticker-cell:hover {
+  background: var(--ink);
+  color: #fff;
+  border-color: var(--ink);
+  transform: translateY(-2px);
+}
+.ticker-cell.active {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+
+/* ---------- Map ---------- */
+.map-wrap {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 56px;
+  align-items: start;
+  margin-top: 24px;
+}
+
+@media (max-width: 900px) {
+  .map-wrap { grid-template-columns: 1fr; }
+}
+
+.map-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+  background: var(--paper);
+  border: 1px solid var(--rule);
+}
+
+.map-province {
+  fill: #ffffff;
+  stroke: #b8b1a3;
+  stroke-width: 0.5;
+  stroke-linejoin: round;
+  cursor: pointer;
+  transition: fill 180ms ease;
+}
+.map-province:hover, .map-province.active {
+  fill: var(--accent);
+  stroke: var(--accent);
+}
+.map-label {
+  font-family: var(--hanzi);
+  font-size: 13px;
+  font-weight: 700;
+  fill: var(--ink);
+  pointer-events: none;
+  text-anchor: middle;
+  dominant-baseline: middle;
+  paint-order: stroke;
+  stroke: #fff;
+  stroke-width: 2.5px;
+  stroke-linejoin: round;
+}
+.map-label.on-active { fill: #fff; stroke: var(--accent); }
+
+.map-pinyin {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 9px;
+  font-weight: 500;
+  fill: var(--ink-mute);
+  pointer-events: none;
+  text-anchor: middle;
+  dominant-baseline: middle;
+  paint-order: stroke;
+  stroke: #fff;
+  stroke-width: 2.5px;
+  stroke-linejoin: round;
+}
+.map-pinyin.on-active { fill: #fff; stroke: var(--accent); }
+
+.map-tooltip {
+  position: absolute;
+  pointer-events: none;
+  background: var(--ink);
+  color: #fff;
+  padding: 10px 14px;
+  font-family: var(--sans);
+  font-size: 12px;
+  line-height: 1.4;
+  max-width: 220px;
+  z-index: 10;
+  opacity: 0;
+  transform: translate(-50%, calc(-100% - 12px));
+  transition: opacity 120ms ease;
+}
+.map-tooltip.show { opacity: 1; }
+.map-tooltip strong { display: block; font-size: 13px; margin-bottom: 2px; }
+.map-tooltip .pinyin { color: #aaa; font-style: italic; }
+
+.detail-card {
+  border-top: 2px solid var(--ink);
+  padding-top: 24px;
+  font-family: var(--sans);
+  position: sticky;
+  top: 32px;
+}
+.detail-card .big-char {
+  font-family: var(--hanzi);
+  font-size: 96px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  color: var(--ink);
+  display: inline-block;
+}
+.detail-card .char-wrap {
+  display: inline-block;
+  text-align: center;
+}
+.detail-card .char-wrap .pinyin {
+  width: 100%;
+}
+.detail-card .pinyin {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 22px;
+  color: var(--ink-soft);
+  margin: 14px 0 18px;
+}
+.detail-card .name {
+  font-family: var(--serif);
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin-bottom: 4px;
+}
+.detail-card .en {
+  font-size: 13px;
+  color: var(--ink-mute);
+  margin-bottom: 24px;
+}
+.detail-card .stat-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  padding: 16px 0;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  margin-bottom: 20px;
+}
+.detail-card .stat-label {
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+  margin-bottom: 4px;
+}
+.detail-card .stat-val {
+  font-family: var(--serif);
+  font-size: 18px;
+  font-weight: 600;
+}
+.detail-card .note {
+  font-family: var(--serif);
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--ink-soft);
+}
+
+/* ---------- Plate types ---------- */
+.types-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 56px 48px;
+  margin-top: 24px;
+}
+@media (max-width: 760px) { .types-grid { grid-template-columns: 1fr; } }
+
+.type-card { display: flex; flex-direction: column; align-items: flex-start; }
+.type-card .plate {
+  margin-bottom: 20px;
+  cursor: pointer;
+}
+.type-meta {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+.type-meta .num {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ink-mute);
+}
+.type-meta h3 {
+  font-family: var(--serif);
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.type-meta .cn {
+  font-family: var(--hanzi);
+  color: var(--ink-mute);
+  font-size: 16px;
+  position: relative;
+  top: -3px;
+}
+.type-card p {
+  font-family: var(--serif);
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--ink-soft);
+  margin-bottom: 10px;
+  max-width: 480px;
+}
+.type-card .issued {
+  font-family: var(--sans);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+}
+
+/* ---------- Fun facts section ---------- */
+.funfacts-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 32px;
+  margin-top: 56px;
+  padding-top: 32px;
+  border-top: 2px solid var(--ink);
+}
+.funfacts-grid .ff .sec-num {
+  margin-bottom: 10px;
+}
+.funfacts-grid .ff p {
+  font-family: var(--serif);
+  font-size: 17px;
+  line-height: 1.5;
+  color: var(--ink-soft);
+}
+.funfacts-grid .ff p strong {
+  color: var(--ink);
+  font-weight: 700;
+}
+@media (max-width: 720px) {
+  .funfacts-grid { grid-template-columns: 1fr; gap: 24px; }
+}
+
+/* ---------- Footer ---------- */
+.coda {
+  margin-top: 96px;
+  padding-top: 32px;
+  border-top: 2px solid var(--ink);
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--sans);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+}
+
+/* ---------- Plate-character font shaping ---------- */
+/* The DIN-style font on real Chinese plates is heavy and squarish.
+   We mimic it with Inter at heavy weight and condensed letter-spacing. */
+.plate-char:not(.hanzi):not(.dot) {
+  font-family: var(--plate-font);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+/* Subtle plate noise/texture */
+.plate.has-texture {
+  background-image:
+    radial-gradient(circle at 30% 20%, rgba(255,255,255,0.06), transparent 40%),
+    radial-gradient(circle at 70% 80%, rgba(0,0,0,0.08), transparent 50%);
+}
